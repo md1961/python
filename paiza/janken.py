@@ -93,32 +93,33 @@ class Janken:
             else:
                 return n1 + n2
 
+        MIN_FINGERS_TO_SHAVE_OFF_HANDS = 20
+
         answer = None
         count_offset_for_0 = 0
         count_offset_for_2 = 0
         count_offset_for_5 = 0
         prev_args = None
         while True:
-            max_w = 0
             hands = self.opp_hands
             n_fingers = total_fingers
+            max_w = 0
 
-            count = max(hands.count('C') - count_offset_for_0, 0)
-            hands = delete_hand(hands, 'C', count)
-            max_w += count
+            if n_fingers > MIN_FINGERS_TO_SHAVE_OFF_HANDS:
+                count = max(hands.count('C') - count_offset_for_0, 0)
+                hands = delete_hand(hands, 'C', count)
 
-            count = max(min(hands.count('P'), int(n_fingers / 2)) - count_offset_for_2, 0)
-            hands = delete_hand(hands, 'P', count)
-            n_fingers -= count * 2
-            max_w += count
+                count = max(min(hands.count('P'), int(n_fingers / 2)) - count_offset_for_2, 0)
+                hands = delete_hand(hands, 'P', count)
+                n_fingers -= count * 2
 
-            count = max(min(hands.count('G'), int(n_fingers / 5)) - count_offset_for_5, 0)
-            hands = delete_hand(hands, 'G', count)
-            n_fingers -= count * 5
-            max_w += count
+                count = max(min(hands.count('G'), int(n_fingers / 5)) - count_offset_for_5, 0)
+                hands = delete_hand(hands, 'G', count)
+                n_fingers -= count * 5
 
-            if n_fingers < 0:
-                break
+                max_w = len(self.opp_hands) - len(hands)
+                if n_fingers < 0:
+                    break
             m = None
             if (hands, n_fingers) != prev_args:
                 print((max_w, (hands, n_fingers), round(n_fingers / (len(hands) or 1), 3)), file=self.f_debug)
