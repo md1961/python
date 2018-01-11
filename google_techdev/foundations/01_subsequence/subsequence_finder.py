@@ -21,9 +21,7 @@ class SubseqenceFinder:
         return True
 
     def longest_subsequence(self, array_of_s):
-        array_of_subseqs = filter(lambda s:self.is_subsequence(s), array_of_s)
-        array_shortest_first = sorted(array_of_subseqs, key=lambda s:len(s))
-        if len(array_shortest_first) == 0:
-            return ''
-        else:
-            return array_shortest_first[-1]
+        for s in sorted(array_of_s, key=lambda s: len(s), reverse=True):
+            if self.is_subsequence(s):
+                return s
+        return ''
