@@ -1,23 +1,15 @@
 class SubseqenceFinder:
 
     def __init__(self, str):
-        self.__make_char_indexes(str)
-
-    def __make_char_indexes(self, str):
-        h = {}
-        for index, char in enumerate(str):
-            indexes = h.get(char, [])
-            indexes.append(index)
-            h[char] = indexes
-        self.__char_indexes = h
+        self.__str = str
 
     def is_subsequence(self, s):
-        pos = 0
+        pos_start = 0
         for c in s:
-            positions = [p for p in self.__char_indexes.get(c, []) if p >= pos]
-            if len(positions) == 0:
+            pos = self.__str.find(c, pos_start)
+            if pos == -1:
                 return False
-            pos = positions[0] + 1
+            pos_start = pos + 1
         return True
 
     def longest_subsequence(self, array_of_s):
