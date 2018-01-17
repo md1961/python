@@ -1,21 +1,47 @@
-team_ball, num_ball = input().split()
-num_ball = int(num_ball)
-pos_off = list(map(int, input().split()))
-pos_def = list(map(int, input().split()))
-if team_ball == 'B':
-    pos_off, pos_def = pos_def, pos_off
-    pos_off = list(map(lambda x: 110 - x, pos_off))
-    pos_def = list(map(lambda x: 110 - x, pos_def))
+class OffsideJudge:
 
-h_pos_off = dict(enumerate([None] + pos_off))
-h_pos_def = dict(enumerate([None] + pos_def))
-del h_pos_off[0]
-del h_pos_def[0]
+    def __init__(self, team_ball, num_ball):
+        self.__team_ball = team_ball
+        self.__num_ball = num_ball
 
-nums_offside = [num for num, pos in h_pos_off.items() if
-    pos >= 55 and
-    pos > h_pos_off[num_ball] and
-    pos > sorted(pos_def, reverse=True)[1]
-]
+    def set_positions(self, team, positions):
+        if team == self.__team_ball:
+            self.__h_pos_off = self.__positions_to_hash(positions)
+        else:
+            self.__h_pos_def = self.__positions_to_hash(positions)
 
-print("\n".join(map(str, nums_offside)) if len(nums_offside) > 0 else 'None')
+    def __positions_to_hash(self, positions):
+        h = dict(enumerate((None,) + positions))
+        h.pop(0)
+        return h
+
+    def judge(self):
+        if self.__team_ball == 'B':
+            self.__reverse_coordinates(self.__h_pos_off)
+            self.__reverse_coordinates(self.__h_pos_def)
+
+        pos_def_2nd_last = sorted(tuple(self.__h_pos_def.values()), reverse=True)[1]
+        nums_offside = (num for num, pos in self.__h_pos_off.items() if
+            pos >= 55 and
+            pos > self.__h_pos_off[self.__num_ball] and
+            pos > pos_def_2nd_last
+        )
+
+        return tuple(nums_offside)
+
+    def __reverse_coordinates(self, h_pos):
+        for num, pos in h_pos.items():
+            h_pos[num] = 110 - pos
+
+
+if __name__ == '__main__':
+    team_ball, num_ball = input().split()
+    num_ball = int(num_ball)
+    pos_a = tuple(map(int, input().split()))
+    pos_b = tuple(map(int, input().split()))
+
+    oj = OffsideJudge(team_ball, num_ball)
+    oj.set_positions('A', pos_a)
+    oj.set_positions('B', pos_b)
+    nums_offside = oj.judge()
+    print("\n".join(tuple(map(str, nums_offside))) if len(nums_offside) > 0 else 'None')
