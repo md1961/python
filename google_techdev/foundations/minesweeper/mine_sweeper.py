@@ -1,6 +1,12 @@
 import random, re
 
 class MineSweeper:
+    """
+    Beginner:      9 x  9, 10 mines
+    Intermediate: 16 x 16, 40 mines
+    Advanced:     30 x 16, 99 mines
+    Customized:   9 x 9 to 30 x 24, 10 to 668 mines with max of (X-1) x (Y-1) for X x Y
+    """
 
     def __init__(self, nx, ny):
         self.__board = Board(nx, ny)
@@ -18,9 +24,6 @@ class MineSweeper:
         if b.is_open(x, y):
             return True
         elif b.is_mine(x, y):
-            print()
-            print("BOOM!")
-            print(self.__board.to_s(with_lid=False))
             return False
         else:
             b.open(x, y)
@@ -36,7 +39,16 @@ class MineSweeper:
             if command == 'q':
                 break
             if not self.open(*command):
+                self.__finish("BOOM!")
                 break
+            if self.__board.is_all_open():
+                self.__finish("CLEAR!!")
+                break
+
+    def __finish(self, message):
+        print()
+        print(message)
+        print(self.__board.to_s(with_lid=False))
 
     def __interpret(self, command):
         if not command:
@@ -62,6 +74,7 @@ class Board:
     def __init__(self, nx, ny):
         self.__nx = nx
         self.__ny = ny
+        self.__num_mines = 0
         self.__initialize()
 
     def __initialize(self):
@@ -85,6 +98,7 @@ class Board:
 
     def put_mine(self, x, y):
         self.__cells[x][y] = self.MINE
+        self.__num_mines += 1
         for _x, _y in self.__adjacent_coordinates(x, y):
             if self.__cells[_x][_y] == self.MINE:
                 continue
@@ -106,6 +120,12 @@ class Board:
 
     def is_open(self, x, y):
         return not self.__lids[x][y]
+
+    def is_all_open(self):
+        n_lids = sum(1 if self.__lids[x][y] else 0
+                     for y in range(1, self.ny() + 1)
+                     for x in range(1, self.nx() + 1))
+        return n_lids == self.__num_mines
 
     def is_ob(self, x, y):
         return self.__cells[x][y] == self.OB
@@ -151,8 +171,8 @@ if __name__ == '__main__':
     ms.put_mines((3, 3), (3, 8), (8, 3), (8, 8))
     ms.open(5, 5)
     """
-    nx = 10
-    ny = 10
+    nx = 9
+    ny = 9
     ms = MineSweeper(nx, ny)
     ms.put_random_mines(10)
     x = random.randrange(nx) + 1
