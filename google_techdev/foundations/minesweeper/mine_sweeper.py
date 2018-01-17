@@ -1,4 +1,4 @@
-import random
+import random, re
 
 class MineSweeper:
 
@@ -16,11 +16,40 @@ class MineSweeper:
     def open(self, x, y):
         b = self.__board
         if b.is_open(x, y):
-            return
+            return True
         elif b.is_mine(x, y):
+            print()
             print("BOOM!")
+            print(self.__board.to_s(with_lid=False))
+            return False
         else:
             b.open(x, y)
+        return True
+
+    def start(self):
+        while True:
+            print(self.__board)
+            while True:
+                command = self.__interpret(input('> '))
+                if command:
+                    break
+            if command == 'q':
+                break
+            if not self.open(*command):
+                break
+
+    def __interpret(self, command):
+        if not command:
+            return False
+        if command.lower() == 'q':
+            return 'q'
+        if re.search("\A\d+\D+\d+\Z", command):
+            x, y = map(int, re.split("\D+", command))
+            if self.__board.is_open(x, y):
+                print("Already OPEN.")
+                return False
+            return (x, y)
+        return False
 
     def __str__(self):
         return str(self.__board)
@@ -28,7 +57,7 @@ class MineSweeper:
 class Board:
 
     OB = ' '
-    MINE = '9'
+    MINE = '*'
 
     def __init__(self, nx, ny):
         self.__nx = nx
@@ -98,14 +127,15 @@ class Board:
         if value.isdigit():
             self.__cells[x][y] = str(int(value) + 1)
 
-    def to_s(self):
+    def to_s(self, with_lid=True):
         buffer = []
         for y in range(1, self.__ny + 1):
-            buffer.append(' '.join([self.__cell_display(x, y) for x in range(1, self.__nx + 1)]))
+            rows = [self.__cell_display(x, y, with_lid) for x in range(1, self.__nx + 1)]
+            buffer.append(' '.join(rows))
         return "\n".join(buffer)
 
-    def __cell_display(self, x, y):
-        return '-' if self.__lids[x][y] else self.__cells[x][y]
+    def __cell_display(self, x, y, with_lid):
+        return '-' if with_lid and self.__lids[x][y] else self.__cells[x][y]
 
     def __str__(self):
         return self.to_s()
@@ -121,9 +151,10 @@ if __name__ == '__main__':
     ms.put_mines((3, 3), (3, 8), (8, 3), (8, 8))
     ms.open(5, 5)
     """
-    ms = MineSweeper(10, 10)
-    ms.put_random_mines(5)
-    x = random.randrange(10) + 1
-    y = random.randrange(10) + 1
-    ms.open(x, y)
-    print(ms)
+    nx = 10
+    ny = 10
+    ms = MineSweeper(nx, ny)
+    ms.put_random_mines(10)
+    x = random.randrange(nx) + 1
+    y = random.randrange(ny) + 1
+    ms.start()
