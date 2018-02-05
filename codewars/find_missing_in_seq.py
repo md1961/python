@@ -1,24 +1,26 @@
+def intervals_of(sequence):
+    return list(map(lambda x: x[0] - x[1], zip(sequence[1:], sequence[:-1])))
+
 def has_missing(sequence):
     size = len(sequence)
     if size <= 2:
         return False
-    steps = list(map(lambda x: x[0] - x[1], zip(sequence[1:], sequence[:-1])))
-    return len(set(steps)) > 1
+    return len(set(intervals_of(sequence))) > 1
 
 def find_missing_sequentially(sequence):
     if not has_missing(sequence):
         return None
-    steps = list(map(lambda x: x[0] - x[1], zip(sequence[1:], sequence[:-1])))
-    is_ascending = sequence[-1] > sequence[0]
-    bad_step = max(steps) if is_ascending else min(steps)
-    index = next((i for i, step in enumerate(steps) if step == bad_step), None)
+    intervals = intervals_of(sequence)
+    is_ascending = sequence[0] < sequence[-1]
+    bad_interval = max(intervals) if is_ascending else min(intervals)
+    index = next((i for i, interval in enumerate(intervals) if interval == bad_interval), None)
     return None if index is None else sum(sequence[index:index+2]) // 2
 
 def find_missing(sequence):
     if not has_missing(sequence):
         return None
-    # Cannot split into a sequence of two elments or less,
-    # because the bad step will be lost.
+    # Avoid splitting into a sequence of two elements or less,
+    # otherwise the bad interval will be lost.
     if len(sequence) <= 5:
         return find_missing_sequentially(sequence)
     i_mid = len(sequence) // 2
