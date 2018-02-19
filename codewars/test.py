@@ -4,8 +4,13 @@ def describe(desc):
 def it(exp):
     print(exp)
 
-def assert_equals(actual, expected):
+def assert_equals(actual, expected, msg=""):
     if actual == expected:
         print("OK")
     else:
-        print("NG: '{}' expected, got '{}'".format(expected, actual))
+        msg = ''
+        print("NG: ", end='')
+        if msg:
+            print(msg)
+            print("    ", end='')
+        print("'{}' expected, got '{}'".format(expected, actual))
