@@ -14,3 +14,9 @@ def assert_equals(actual, expected, msg=""):
             print(msg)
             print("    ", end='')
         print("'{}' expected, got '{}'".format(expected, actual))
+
+def expect(bool, msg=""):
+    if bool:
+        print("OK")
+    else:
+        print("NG: {}".format(msg or "Should be True"))
