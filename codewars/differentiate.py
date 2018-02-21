@@ -40,16 +40,83 @@ def var_and_degree(tree):
                 raise NotImplementedError(str(tree))
             return (v0, d0 * tree['arg1']['num'])
         elif op in ('+', '-'):
-            if v0 == v1 and d0 == d1:
+            if d1 == 0 or (v0 == v1 and d0 == d1):
                 return (v0, d0)
-            return None
-        else:
+            if d0 == 0:
+                return (v1, d1)
+            return (None, -1)  # mixed var's or degrees
+        else:  # op in ('*', '/')
             if v0 != v1 and d0 > 0 and d1 > 0:
                 raise NotImplementedError(str(tree))
+            v = v1 if d0 == 0 else v0
             d = d0 + d1 if op == '*' else d0 - d1
-            return (v0, d)
-    # 'func'
-    return (tree, 1)
+            return (v, d)
+    else:  # 'func'
+        return (tree, 1)
+
+
+def collapse(trees):
+    nums = []
+    vars = []
+    for tree in trees:
+        (nums if 'num' in tree else vars).append(tree)
+    while len(nums) > 1:
+        num = nums.pop()
+        nums[0] = {'num': nums[0]['num'] * num['num']}
+    i = 0
+    while i < len(nums) - 1:
+        j = i + 1
+        while j < len(nums):
+
+def degree_of(var_name, tree):
+    if tree.get('var') == var_name:
+        return 1
+    if tree.get('op') == '^' and tree['arg0'].get('var') == var_name:
+        num = tree['arg1'].get('num')
+        if num is None:
+            raise NotImplementedError(str(tree))
+        return num
+    return 0
+
+def multiply(tree0, tree1):
+    multipliers = []
+    divisors = []
+    for tree in (tree0, tree1):
+        if 'num' in tree or 'var' in tree or tree.get('op') == '^':
+            multipliers.append(tree)
+        elif 'op' in tree:
+            multipliers.append(tree['arg0'])
+            if tree['op'] = '*':
+                multipliers.append(tree['arg1'])
+            elif tree['op'] = '/':
+                divisors.append(tree['arg1'])
+            else:
+                raise NotImplementedError("op of '+' or '-'")
+    if len(multipliers) == 2 and not divisors:
+        d0 = degree_of('x', tree0)
+        d1 = degree_of('x', tree1)
+        if d0 > 0 and d1 > 0:
+            return {'op': '^', 'arg0': {'var': 'x'}, 'arg1': {'num': d0 + d1}}
+    multipliers = collpase(multipliers)
+    divisors    = collpase(divisors)
+    
+
+def arrange(tree):
+    if 'num' in tree or 'var' in tree:
+        return [tree]
+    if 'op' in tree:
+        op   = tree['op']
+        arg0 = tree['arg0']
+        arg1 = tree['arg1']
+        trees0 = arrange(arg0)
+        trees1 = arrange(arg1)
+        if op in ('+', '-'):
+            if op == '-':
+                trees1 = map(lambda t: {'op': '*', 'arg0': t, 'arg1': -1}, t in trees1)
+            return trees0 + trees1
+        if op == '*':
+            if len(trees0) == 1 and len(trees1) == 1:
+                return [multiply(trees0[0], trees1[0])]
 
 
 def scan_first(pattern, s):
@@ -111,7 +178,12 @@ if __name__ == '__main__':
         "(cos (* 2 x))",
         "(^ x 3)",
     ]
-    #args = ["(+ x x)"]
+    """
+    args = [
+        "(+ x 2)",
+        "(* 2 (+ x 2))",
+    ]
+    """
     for s in args:
         print("{}  =>  ".format(s), end='')
         print(diff(s), end='')

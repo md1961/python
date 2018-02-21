@@ -44,16 +44,16 @@ paths = tuple(map(list, [
     ".#.#.....",
     ".....#...",
     "....#..#.",
-    "..#......",
+    "..##.....",
     "......#..",
-    "...#....#",
-    "..#..#...",
+    "#..#.#..#",
+    ".##..#...",
     "......#.#",
-    ".........",
+    "......#..",
 ]))
 
-nx, ny = map(int, input().split())
-paths = tuple([tuple(input()) for x in range(nx)])
+#nx, ny = map(int, input().split())
+#paths = tuple([tuple(input()) for x in range(nx)])
 
 BLOCK = 99999999
 
@@ -94,4 +94,5 @@ for x in range(1, nx):
                 rightward = min(cell_left[0] + 1, cell_left[1])
             turns[x][y] = [downward, rightward]
 
-print(min(turns[-1][-1]))
+#print(min(turns[-1][-1]))
+print_turns(turns)
