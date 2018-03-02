@@ -20,6 +20,13 @@ def swap_digits_all(s, d1, d2):
     c_tmp = 'x'
     return s.replace(d1, c_tmp).replace(d2, d1).replace(c_tmp ,d2)
 
+def is_upsidedown(n):
+    s = str(n)
+    if re.search(r'[23457]', s):
+        return False
+    s_rev = ''.join(reversed(s))
+    return s == swap_digits_all(s_rev, 6, 9)
+
 debug = 0
 def count_for_same_num_digits_as(s_num, is_greater, allows_zero_at_top=False):
 
@@ -78,7 +85,12 @@ def count_for_same_num_digits_as(s_num, is_greater, allows_zero_at_top=False):
             s_num_two_less = s_num[1:-1]
             count_sub_for_two_digit_less = count_for_same_num_digits_as(s_num_two_less, is_greater, allows_zero_at_top=True)
             count += count_sub_for_two_digit_less
-            if f_cmp_ne(int(d2), int(d1)) and s_num_two_less == max_or_min_sub_str_num(len(s_num_two_less), is_max=is_greater):
+            if d1 == '6':
+                d2 = int(d2) - (9 - 6)
+            elif d1 == '9':
+                d2 = int(d2) + (9 - 6)
+            if f_cmp_ne(int(d2), int(d1)) and is_upsidedown(s_num_two_less):
+                #s_num_two_less == max_or_min_sub_str_num(len(s_num_two_less), is_max=is_greater) or s_num_two_less == '080':
                 count -= 1
         retval = count
     if debug: print(retval)
@@ -111,13 +123,6 @@ def upsidedown(x, y):
     return count
 
 
-def is_upsidedown(n):
-    s = str(n)
-    if re.search(r'[23457]', s):
-        return False
-    s_rev = ''.join(reversed(s))
-    return s == swap_digits_all(s_rev, 6, 9)
-
 def upsidedown_brutally(x, y):
     count = 1 if is_upsidedown(x) else 0
     while True:
@@ -134,8 +139,12 @@ if __name__ == '__main__':
     sys.path.insert(0, './codewars')
     import test
 
-    debug = 0
     """
+    debug = 1
+
+    test.assert_equals(upsidedown('909080743', '1000000000'),312)
+    quit()
+
     ('0','10'),
     ('6','25'),
     ('10','100'),
