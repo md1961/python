@@ -118,8 +118,7 @@ def upsidedown(x, y):
     count = count_for_same_num_digits_as(x, is_greater=True)
     count += count_for_same_num_digits_as(y, is_greater=False)
     for num_digits in range(len(x) + 1, len(y)):
-        n_min = 10 ** (num_digits - 1)
-        count += count_for_same_num_digits_as(str(n_min), is_greater=True)
+        count += 4 * 5 ** (num_digits // 2 - 1) * (3 if num_digits % 2 == 1 else 1)
     return count
 
 
