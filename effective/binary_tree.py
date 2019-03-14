@@ -1,5 +1,6 @@
 import unittest
 
+
 class BinaryTree:
 
     def __init__(self, value, left=None, right=None):
@@ -21,17 +22,33 @@ class BinaryTree:
             return self.__traverse_dict(value.__dict__)
         return value
 
+
 class IndexableNode(BinaryTree):
 
     def _search(self, count, index):
-        pass
+
+        #import pdb; pdb.set_trace()
+
+        if self.left:
+            found, count = self.left._search(count, index)
+            if found:
+                return found, count
+        if count == index:
+            return self, count
+        count += 1
+        if self.right:
+            found, count = self.right._search(count, index)
+            if found:
+                return found, count
+        return None, count
         # Returns (found, count)
 
-    def __get_item__(self, index):
+    def __getitem__(self, index):
         found, _ = self._search(0, index)
         if not found:
             raise IndexError('Index ({}) out of range'.format(index))
         return found.value
+
 
 class TestIndexableNode(unittest.TestCase):
 
@@ -56,7 +73,16 @@ class TestIndexableNode(unittest.TestCase):
         self.assertEqual(7, self.tree.left.right.right.value)
 
     def testIndexing(self):
-        self.assertEqual(0, self.tree[0])
+        self.assertEqual(2, self.tree[0])
+        self.assertEqual(5, self.tree[1])
+        self.assertEqual(10, self.tree[4])
+
+    def testIn(self):
+        self.assertTrue(11 in self.tree)
+        self.assertFalse(17 in self.tree)
+
+    def testToList(self):
+        self.assertEqual([2, 5, 6, 7, 10, 11, 15], list(self.tree))
 
 
 if __name__ == '__main__':
