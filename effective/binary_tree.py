@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 import unittest
 
 
@@ -23,12 +24,9 @@ class BinaryTree:
         return value
 
 
-class IndexableNode(BinaryTree):
+class IndexableNode(BinaryTree, Sequence):
 
     def _search(self, count, index):
-
-        #import pdb; pdb.set_trace()
-
         if self.left:
             found, count = self.left._search(count, index)
             if found:
@@ -41,13 +39,16 @@ class IndexableNode(BinaryTree):
             if found:
                 return found, count
         return None, count
-        # Returns (found, count)
 
     def __getitem__(self, index):
         found, _ = self._search(0, index)
         if not found:
             raise IndexError('Index ({}) out of range'.format(index))
         return found.value
+
+    def __len__(self):
+        _, count = self._search(0, None)
+        return count
 
 
 class TestIndexableNode(unittest.TestCase):
@@ -83,6 +84,17 @@ class TestIndexableNode(unittest.TestCase):
 
     def testToList(self):
         self.assertEqual([2, 5, 6, 7, 10, 11, 15], list(self.tree))
+
+    def testLen(self):
+        self.assertEqual(7, len(self.tree))
+
+    def testIndex(self):
+        self.assertEqual(3, self.tree.index(7))
+        self.assertEqual(6, self.tree.index(15))
+
+    def testCount(self):
+        self.assertEqual(1, self.tree.count(10))
+        self.assertEqual(0, self.tree.count(3))
 
 
 if __name__ == '__main__':
